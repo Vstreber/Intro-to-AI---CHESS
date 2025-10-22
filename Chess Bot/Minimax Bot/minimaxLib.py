@@ -1,68 +1,43 @@
 import chess
 import random
+import assignValue
 
-def singleSearch(board):
+def search(yourColor, score, board, depth=0, max_depth=1):
+    
     bestScore = float('-inf')
     bestMove = None
-    score = 0
-
-    myTestBoard = chess.Board()
-    oppTestBoard = chess.Board()
-
-    myTestBoard.set_fen(board.fen())
-    legalMoves = list(myTestBoard.legal_moves)
-    random.shuffle(legalMoves)
-    for i in legalMoves:
-        myTestBoard.set_fen(board.fen())
-        myEndSquare = (str(i))[-2:]
-        if myTestBoard.is_capture(i):
-
-            # Queen
-            if (myTestBoard.piece_type_at(chess.parse_square(myEndSquare)) == 5):
-                score += 10
-
-            # King
-            if (myTestBoard.piece_type_at(chess.parse_square(myEndSquare)) == 6):
-                score += 10
-
-            # Knight
-            if (myTestBoard.piece_type_at(chess.parse_square(myEndSquare)) == 2):         
-                score += 5
-
-            # Bishop
-            if (myTestBoard.piece_type_at(chess.parse_square(myEndSquare)) == 3):
-                score += 8
-
-            # Rook
-            if (myTestBoard.piece_type_at(chess.parse_square(myEndSquare)) == 4):
-                score += 6
-
-            # Pawn
-            if (myTestBoard.piece_type_at(chess.parse_square(myEndSquare)) == 1):
-                score += 1
-
-        myTestBoard.push_uci(str(i))
-
-        for j in legalMoves:
-            oppTestBoard.set_fen(myTestBoard.fen())
-
-            oppEndSquare = (str(j))[-2:]
-            if myTestBoard.is_capture(j):
-                if (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "Q") or (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "q"):
-                    score -= 10
-                if (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "K") or (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "k"):
-                    score -= 10
-                if (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "N") or (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "n"):
-                    score -= 5
-                if (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "B") or (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "b"):
-                    score -= 8
-                if (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "R") or (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "r"):
-                    score -= 6
-                if (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "P") or (str(myTestBoard.piece_at(chess.parse_square(oppEndSquare))) == "p"):
-                    score -= 1
-
-            if score > bestScore:
-                bestScore = score
-                bestMove = i
+    #fen = board.fen()
     
-    return str(bestMove)
+    legalMoves = list(board.legal_moves)
+    random.shuffle(legalMoves)
+
+    for i in legalMoves:
+        print("Move: " + str(i))
+        score = 0
+
+        #reset fen position for next test
+        #board.set_fen(fen)
+
+        #calculate move score
+        score = assignValue.assignValue(i, board, score, yourColor)
+
+        #if score is larger, updates bestScore
+        if score > bestScore:
+            bestScore = score
+            print("New best score: " + str(bestScore))
+            print("Current score: " + str(score))
+            bestMove = i
+            print("New best move: " + str(i))
+
+        if depth >= max_depth:
+            return bestMove
+        
+        #updates board state with new move.
+        board.push(i)
+        print("Move stack: " + str(board.move_stack))
+
+        #recursion
+        search(yourColor, score, board, depth + 1, max_depth)
+
+        print("Move stack: " + str(board.move_stack))
+        board.pop()

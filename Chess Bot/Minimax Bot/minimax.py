@@ -1,8 +1,8 @@
 import datetime
 import chess
-import random
 import chess.svg
 import minimaxLib
+import singleSearch
 
 #update the file board.svg to display current board state.
 def updateBoard():
@@ -14,8 +14,6 @@ def updateBoard():
 #initialize board.
 board = chess.Board()
 updateBoard()
-
-minimaxLib.singleSearch(board)
 
 #display date and time.
 now = datetime.datetime.now()
@@ -49,9 +47,8 @@ board.set_fen(starting_position)
 print(board)
 while (board.is_checkmate() == False):
     if human == current_player:
-        print("Enter your move: ")
-        move = input()
-        move = minimaxLib.singleSearch(board)
+        move = input("Enter your move: ")
+        board.push_uci(move)
         if (current_player == "b"):
             current_player = "w"
         else:
@@ -60,9 +57,8 @@ while (board.is_checkmate() == False):
         updateBoard()
 
     elif computer == current_player:
-        print("The bot's move is: ")
-        move = minimaxLib.singleSearch(board)
-        print(str(move))
+        move = minimaxLib.search(chess.BLACK, 0, board)
+        print("The bot's move is: " + str(move))
         board.push_uci(move)
         if (current_player == "b"):
             current_player = "w"
